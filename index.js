@@ -22,11 +22,12 @@ const config = require('./config.json');
 			page.waitForNavigation(),
 		]);
 
-		page.waitForSelector("[data-selector=manage-totalvalue]");
+		await page.waitForSelector('[data-selector=manage-totalvalue]');
 
 		await page.screenshot({ path: 'example.png' });
 
 		const date = await page.$("[data-selector=manage-valuedate]");
+
 		const dateText = await date.evaluate(element => element.innerText);
 
 		const value = await page.$("[data-selector=manage-totalvalue]");
@@ -34,6 +35,7 @@ const config = require('./config.json');
 
 		addRowToSheet(getFormattedDate(dateText), valueText);
 	}
+
 	await browser.close();
 })();
 
@@ -49,21 +51,29 @@ async function addRowToSheet(date, value) {
 	const sheet = doc.sheetsByIndex[0];
 
 	const rows = await sheet.getRows({ limit: 2 });
+	const row = rows[1];
 
-	if (rows.length > 0 && rows[1].date === date && rows[1].value === value) {
-		console.log("row already exists. abort.");
+	if (rows.length > 0 && row.date === date && row.value === value) {
+		console.log(`row ${date}: ${value} already exists. abort.`);
 	}
 	else {
 		const now = new Date();
 		const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-		const change = getDoubleValue(rows[1].value) - getDoubleValue(value);
-		await sheet.addRow({ time, date, value, change });
+		const change = getChange(row.value, value);
+		await sheet.addRows([{ time: "", date: "", value: "", change: "" }, { time, date, value, change }]);
 		console.log(`Added row: ${time}, ${date}: ${value}, ${change}`);
 	}
 }
 
+function getChange(previousVal, currentVal) {
+	const previousFloat = getDoubleValue(previousVal);
+	const currentFloat = getDoubleValue(currentVal);
+	const diff = currentFloat - previousFloat;
+	return Math.round((diff + Number.EPSILON) * 100) / 100;
+}
+
 function getDoubleValue(valueText) {
-	return parseFloat(valueText.substring(1));
+	return parseFloat(valueText.substring(1).replace(',', ""));
 }
 
 function getFormattedDate(dateText) {
