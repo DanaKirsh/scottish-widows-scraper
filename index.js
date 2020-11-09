@@ -48,23 +48,24 @@ async function addRowToSheet(date, value) {
 	await doc.loadInfo();
 	const sheet = doc.sheetsByIndex[0];
 
-	const rows = await sheet.getRows({ limit: 1 });
+	const rows = await sheet.getRows({ limit: 2 });
 
-	if (rows.length > 0 && rows[0].date === date && rows[0].value === value) {
+	if (rows.length > 0 && rows[1].date === date && rows[1].value === value) {
 		console.log("row already exists. abort.");
 	}
 	else {
 		const now = new Date();
 		const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-		await sheet.addRow({ time, date, value });
-		console.log(`Added row: ${time}, ${date}: ${value}`);
+		const change = getDoubleValue(rows[1].value) - getDoubleValue(value);
+		await sheet.addRow({ time, date, value, change });
+		console.log(`Added row: ${time}, ${date}: ${value}, ${change}`);
 	}
 }
 
+function getDoubleValue(valueText) {
+	return parseFloat(valueText.substring(1));
+}
+
 function getFormattedDate(dateText) {
-	var pensionDate = new Date(dateText);
-	var month = pensionDate.getMonth() + 1;
-	var day = pensionDate.getDate();
-	var year = pensionDate.getFullYear();
-	return day + "/" + month + "/" + year;
+	return new Date(dateText).toLocaleDateString('en-GB');
 }
