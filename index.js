@@ -4,6 +4,7 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const config = require('./config.json');
 
 (async () => {
+
 	const browser = await puppeteer.launch();
 	const page = await browser.newPage();
 
@@ -27,7 +28,6 @@ const config = require('./config.json');
 		await page.screenshot({ path: 'example.png' });
 
 		const date = await page.$("[data-selector=manage-valuedate]");
-
 		const dateText = await date.evaluate(element => element.innerText);
 
 		const value = await page.$("[data-selector=manage-totalvalue]");
@@ -50,19 +50,34 @@ async function addRowToSheet(date, value) {
 	await doc.loadInfo();
 	const sheet = doc.sheetsByIndex[0];
 
-	const rows = await sheet.getRows({ limit: 2 });
-	const row = rows[1];
+	const rows = await sheet.getRows({ limit: 15 });
+	const lastDataIndex = getLastRowIndex(rows);
+	const lastRow = rows[lastDataIndex];
 
-	if (rows.length > 0 && row.date === date && row.value === value) {
+	if (rows.length > 0 && lastRow.date === date && lastRow.value === value) {
 		console.log(`row ${date}: ${value} already exists. abort.`);
 	}
 	else {
-		const now = new Date();
-		const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-		const change = getChange(row.value, value);
-		await sheet.addRows([{ time: "", date: "", value: "", change: "" }, { time, date, value, change }]);
-		console.log(`Added row: ${time}, ${date}: ${value}, ${change}`);
+		updateNewRow(lastRow, rows[lastDataIndex - 1], date, value);
 	}
+}
+
+async function updateNewRow(lastRow, newRow, date, value) {
+	const now = new Date();
+	const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+	const change = getChange(lastRow.value, value);
+	Object.assign(newRow, { time, date, value, change });
+	await newRow.save();
+	console.log(`Added row: ${time}, ${date}: ${value}, ${change}`);
+}
+
+function getLastRowIndex(rows) {
+	for (var i = rows.length - 1; i >= 0; i--) {
+		if (!rows[i].date) {
+			return i + 1;
+		}
+	}
+	return -1;
 }
 
 function getChange(previousVal, currentVal) {
