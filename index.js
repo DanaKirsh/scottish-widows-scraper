@@ -63,8 +63,7 @@ async function addRowToSheet(date, value) {
 }
 
 async function updateNewRow(lastRow, newRow, date, value) {
-	const now = new Date();
-	const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+	const time = new Date().toISOString().substr(11, 8);
 	const change = getChange(lastRow.value, value);
 	Object.assign(newRow, { time, date, value, change });
 	await newRow.save();
