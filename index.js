@@ -51,14 +51,14 @@ async function addRowToSheet(date, value) {
 	const sheet = doc.sheetsByIndex[0];
 
 	const rows = await sheet.getRows({ limit: 15 });
-	const lastDataIndex = getLastRowIndex(rows);
-	const lastRow = rows[lastDataIndex];
+	const lastRecordIndex = rows.findIndex(row => row.date);
+	const lastRow = rows[lastRecordIndex];
 
 	if (rows.length > 0 && lastRow.date === date && lastRow.value === value) {
 		console.log(`row ${date}: ${value} already exists. abort.`);
 	}
 	else {
-		updateNewRow(lastRow, rows[lastDataIndex - 1], date, value);
+		updateNewRow(lastRow, rows[lastRecordIndex - 1], date, value);
 	}
 }
 
@@ -68,16 +68,8 @@ async function updateNewRow(lastRow, newRow, date, value) {
 	const change = getChange(lastRow.value, value);
 	Object.assign(newRow, { time, date, value, change });
 	await newRow.save();
-	console.log(`Added row: ${time}, ${date}: ${value}, ${change}`);
-}
 
-function getLastRowIndex(rows) {
-	for (var i = rows.length - 1; i >= 0; i--) {
-		if (!rows[i].date) {
-			return i + 1;
-		}
-	}
-	return -1;
+	console.log(`Added row: ${time}, ${date}: ${value}, ${change}`);
 }
 
 function getChange(previousVal, currentVal) {
