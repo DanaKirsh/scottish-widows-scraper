@@ -1,4 +1,4 @@
-# scottish-widows-scaper
+# scottish-widows-scraper
 Scrapes the pension value and date from the Scottish Widows website, and records it in a google sheet.
 
 ## Requirements:
