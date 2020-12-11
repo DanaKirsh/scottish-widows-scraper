@@ -1,21 +1,21 @@
 const puppeteer = require('puppeteer');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-const config = require('./config.json');
+require('dotenv').config()
 
 (async () => {
 
 	const browser = await puppeteer.launch();
 	const page = await browser.newPage();
 
-	await page.goto(config.pension_url);
+	await page.goto(process.env.PENSION_URL);
 
 	if (!await page.$("h1[value*='SITE MAINTENANCE']")) {
 		await page.click("input[name=emailAddress]");
-		await page.keyboard.type(config.pension_email);
+		await page.keyboard.type(process.env.PENSION_EMAIL);
 
 		await page.click("input[name=password]");
-		await page.keyboard.type(config.pension_password);
+		await page.keyboard.type(process.env.PENSION_PASSWORD);
 
 
 		await Promise.all([
@@ -24,8 +24,6 @@ const config = require('./config.json');
 		]);
 
 		await page.waitForSelector('[data-selector=manage-totalvalue]');
-
-		await page.screenshot({ path: 'example.png' });
 
 		const date = await page.$("[data-selector=manage-valuedate]");
 		const dateText = await date.evaluate(element => element.innerText);
@@ -40,11 +38,11 @@ const config = require('./config.json');
 })();
 
 async function addRowToSheet(date, value) {
-	const doc = new GoogleSpreadsheet(config.google_sheet_id);
+	const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
 
 	await doc.useServiceAccountAuth({
-		client_email: config.client_email,
-		private_key: config.private_key,
+		client_email: process.env.CLIENT_EMAIL,
+		private_key: process.env.PRIVATE_KEY,
 	});
 
 	await doc.loadInfo();
