@@ -53,11 +53,11 @@ To schedule the script to run locally in Windows, you can use the task scheduler
       <Arguments>".\index.js"</Arguments>
 
 	  <!-- path of where you cloned this repo -->
-      <WorkingDirectory>...\scottish-widows-scraper</WorkingDirectory>
+      <WorkingDirectory>C:\\...\scottish-widows-scraper</WorkingDirectory>
     </Exec>
   </Actions>
 ```
-Historically it appears Scottish Widows updates the pension values daily Tuesdays to Saturdays.
+Historically it appears Scottish Widows updates the pension values daily Tuesday to Saturday.
 
 Some other useful settings that I ticked include:
 - Allow task to be run on demand
