@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-require('dotenv').config()
+require('dotenv').config();
 
 (async () => {
 
