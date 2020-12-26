@@ -28,16 +28,16 @@ require('dotenv').config();
 		const date = await page.$("[data-selector=manage-valuedate]");
 		const dateText = await date.evaluate(element => element.innerText);
 
-		const value = await page.$("[data-selector=manage-totalvalue]");
-		const valueText = await value.evaluate(element => element.innerText);
+		const newBalance = await page.$("[data-selector=manage-totalvalue]");
+		const newBalanceText = await newBalance.evaluate(element => element.innerText);
 
-		addRowToSheet(getFormattedDate(dateText), valueText);
+		addRowToSheet(getFormattedDate(dateText), newBalanceText);
 	}
 
 	await browser.close();
 })();
 
-async function addRowToSheet(date, value) {
+async function addRowToSheet(date, newBalance) {
 	const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
 
 	await doc.useServiceAccountAuth({
@@ -52,32 +52,39 @@ async function addRowToSheet(date, value) {
 	const lastRecordIndex = rows.findIndex(row => row.date);
 	const lastRow = rows[lastRecordIndex];
 
-	if (rows.length > 0 && lastRow.date === date && lastRow.value === value) {
-		console.log(`row ${date}: ${value} already exists. abort.`);
+	if (rows.length > 0 && lastRow.date === date && lastRow.newBalance === newBalance) {
+		console.log(`row ${date}: ${newBalance} already exists. abort.`);
 	}
 	else {
-		updateNewRow(lastRow, rows[lastRecordIndex - 1], date, value);
+		updateNewRow(lastRow, rows[lastRecordIndex - 1], date, newBalance);
 	}
 }
 
-async function updateNewRow(lastRow, newRow, date, value) {
+async function updateNewRow(lastRow, newRow, date, newBalance) {
+
+	newBalance = getDouble(newBalance);
+	const totalPaid = getDouble(lastRow["total payments"]);
+	const oldBalance = getDouble(lastRow.value);
 	const time = new Date().toISOString().substr(11, 8);
-	const change = getChange(lastRow.value, value);
-	Object.assign(newRow, { time, date, value, change });
+	const change = Math.round((newBalance - oldBalance + Number.EPSILON) * 100) / 100;
+	const totalGain = newBalance - totalPaid;
+	const rateOfReturn = totalGain / totalPaid;
+
+	Object.assign(newRow, {
+		time,
+		date,
+		value: newBalance,
+		change,
+		"total payments": lastRow["total payments"],
+		"total gain": totalGain,
+		"rate of return": rateOfReturn
+	});
+
 	await newRow.save();
-
-	console.log(`Added row: ${time}, ${date}: ${value}, ${change}`);
 }
 
-function getChange(previousVal, currentVal) {
-	const previousFloat = getDoubleValue(previousVal);
-	const currentFloat = getDoubleValue(currentVal);
-	const diff = currentFloat - previousFloat;
-	return Math.round((diff + Number.EPSILON) * 100) / 100;
-}
-
-function getDoubleValue(valueText) {
-	return parseFloat(valueText.substring(1).replace(',', ""));
+function getDouble(newBalanceText) {
+	return parseFloat(newBalanceText.substring(1).replace(',', ""));
 }
 
 function getFormattedDate(dateText) {
