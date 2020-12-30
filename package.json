@@ -6,9 +6,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "scripts": {
+    "lint": "eslint . --fix"
+  },
   "dependencies": {
     "dotenv": "^8.2.0",
     "google-spreadsheet": "^3.0.13",
     "puppeteer": "^5.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.16.0",
+    "eslint-config-google": "^0.14.0"
   }
 }
