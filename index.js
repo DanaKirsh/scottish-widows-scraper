@@ -5,70 +5,76 @@ require('dotenv').config();
 
 (async () => {
 
+	// Navigate to the Scottish Widows website:
 	const browser = await puppeteer.launch();
 	const page = await browser.newPage();
-
 	await page.goto(process.env.PENSION_URL);
+
+	async function fillInputField(fieldName, input) {
+		await page.click(`input[name=${fieldName}]`);
+		await page.keyboard.type(input);
+	}
+
+	async function getElementText(dataSelector) {
+		const element = await page.$(`[data-selector=${dataSelector}]`);
+		return await element.evaluate(element => element.innerText);
+	}
 
 	if (!await page.$("h1[value*='SITE MAINTENANCE']")) {
 
-		await page.click("input[name=emailAddress]");
-		await page.keyboard.type(process.env.PENSION_EMAIL);
-
-		await page.click("input[name=password]");
-		await page.keyboard.type(process.env.PENSION_PASSWORD);
-
+		// Log into Scottish Widows:
+		await fillInputField("emailAddress", process.env.PENSION_EMAIL);
+		await fillInputField("password", process.env.PENSION_PASSWORD);
 		await Promise.all([
 			page.click("#button-login"),
 			page.waitForNavigation(),
 		]);
 
+		// Scrape values:
 		await page.waitForSelector('[data-selector=manage-totalvalue]');
+		const dateText = await getElementText("manage-valuedate");
+		const newBalanceText = await getElementText("manage-totalvalue");
+		const premiumPaidText = await getElementText("policy-card-last-premium-paid");
 
-		const date = await page.$("[data-selector=manage-valuedate]");
-		const dateText = await date.evaluate(element => element.innerText);
+		// Process values:
+		const date = getFormattedDate(dateText);
+		const premiumValue = parseFloat(premiumPaidText.match(/\d+(\.\d+)?/)[0]);
+		const premiumDate = getFormattedDate(premiumPaidText.match(/\d+ [A-Z][a-z]+ \d\d\d\d/));
 
-		const newBalance = await page.$("[data-selector=manage-totalvalue]");
-		const newBalanceText = await newBalance.evaluate(element => element.innerText);
-
-		const premiumPaid = await page.$("[data-selector=policy-card-last-premium-paid]");
-		const premiumPaidText = await premiumPaid.evaluate(element => element.innerText);
-		const premiumValue = premiumPaidText.match(/\d+(\.\d+)?/)[0];
-		const premiumDate = premiumPaidText.split(" received on ")[1];
-
-		addRowToSheet(getFormattedDate(dateText), newBalanceText, premiumValue, getFormattedDate(premiumDate));
+		// Record data in Google Sheet:
+		addDataToSheet(date, newBalanceText, premiumValue, premiumDate);
 	}
 
 	await browser.close();
 })();
 
-async function addRowToSheet(date, newBalance, premiumValue, premiumDate) {
+async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
 
+	// Load Google Sheet and authenticate:
 	const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
-
 	await doc.useServiceAccountAuth({
 		client_email: process.env.CLIENT_EMAIL,
 		private_key: process.env.PRIVATE_KEY,
 	});
-
 	await doc.loadInfo();
-	const sheet = doc.sheetsByIndex[0];
 
+	// Find empty row to fill:
+	const sheet = doc.sheetsByIndex[0];
 	const rows = await sheet.getRows({ limit: 15 });
 	const lastRecordIndex = rows.findIndex(row => row.date); // assuming not -1, based on my existing spreadsheet
 	var lastRow = rows[lastRecordIndex];
-	var newRow = rows[lastRecordIndex - 1];
 
 	if (rows.length > 0 && lastRow.date === date && lastRow.value === newBalance) {
-		console.log(`row ${date}: ${newBalance} already exists. abort.`);
+		console.log(`row ${date}: ${newBalance} already recorded. abort.`);
 	}
 	else {
+		var newRow = rows[lastRecordIndex - 1];
 		const time = new Date().toISOString().substr(11, 8);
 		const oldBalance = getDouble(lastRow.value);
 		var totalPaid = getDouble(lastRow["total payments"]);
 		newBalance = getDouble(newBalance);
-		premiumValue = parseFloat(premiumValue);
 
+		// Record if new premium payment was made:
 		if (getDateFromStr(lastRow.date) < getDateFromStr(premiumDate)) {
 			totalPaid += premiumValue;
 			const intermediateBalance = roundTo2DecimalPlaces(oldBalance + premiumValue);
@@ -82,14 +88,14 @@ async function addRowToSheet(date, newBalance, premiumValue, premiumDate) {
 				"total gain": getDouble(lastRow["total gain"]),
 				"rate of return": parseFloat(lastRow["rate of return"]) / 100
 			};
+			saveSheetRow(newRow, paymentRowData);
 
-			Object.assign(newRow, paymentRowData);
-			await newRow.save();
 			lastRow = newRow;
 			newRow = rows[lastRecordIndex - 2];
 		}
 
-		const change = Math.round((newBalance - oldBalance + Number.EPSILON) * 100) / 100;
+		// Record new balance:
+		const change = roundTo2DecimalPlaces(newBalance - oldBalance);
 		const totalGain = newBalance - totalPaid;
 		const rateOfReturn = totalGain / totalPaid;
 
@@ -103,9 +109,13 @@ async function addRowToSheet(date, newBalance, premiumValue, premiumDate) {
 			"rate of return": rateOfReturn
 		};
 
-		Object.assign(newRow, newRowData);
-		await newRow.save();
+		saveSheetRow(newRow, newRowData);
 	}
+}
+
+async function saveSheetRow(newRow, newRowData) {
+	Object.assign(newRow, newRowData);
+	await newRow.save();
 }
 
 function getDouble(newBalanceText) {
