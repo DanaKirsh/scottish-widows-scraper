@@ -10,16 +10,14 @@ Scrapes the pension value and date from the Scottish Widows website, and records
 1. Clone this repository
 2. Create a google sheet where the data will be stored, with the following headers: 'time', 'date', 'value', 'change', 'contribution values', 'contribution'
 3. Create a google cloud platform app with drive and sheets permissions
-4. Add to the project directory a `config.json` file with the following fields:
+4. Add a `.env` file with the following fields to the project directory:
 ```
-{
-  "private_key": "_",
-  "client_email": "_",
-  "google_sheet_id": "_",
-  "pension_email": "_",
-  "pension_password": "_",
-  "pension_url": "https://personal.secure.scottishwidows.co.uk/"
-}
+PENSION_URL=https://personal.secure.scottishwidows.co.uk/
+PENSION_EMAIL=___
+PENSION_PASSWORD=___
+PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n <fill missing bit> \n-----END PRIVATE KEY-----\n"
+CLIENT_EMAIL=___
+GOOGLE_SHEET_ID=___
 ```
 5. Schedule a task to run the `index.js` script daily
 
