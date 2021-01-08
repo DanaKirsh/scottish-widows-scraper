@@ -63,7 +63,11 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
   const lastRecordIndex = rows.findIndex((row) => row.date);
   let lastRow = rows[lastRecordIndex];
 
-  if (rows.length && lastRow.date === date && lastRow.value === newBalance) {
+  function isRowRecorded(row, date, balance) {
+    return row.date === date && row.value === balance;
+  }
+
+  if (rows.length && isRowRecorded(lastRow, date, newBalance)) {
     console.log(`row ${date}: ${newBalance} already recorded. abort.`);
   } else {
     let newRow = rows[lastRecordIndex - 1];
