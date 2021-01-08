@@ -97,7 +97,7 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
     }
 
     // Record new balance:
-    const change = roundTo2dp(newBalance - oldBalance);
+    const change = roundTo2dp(newBalance - lastRow.value);
     const totalGain = newBalance - totalPaid;
     const rateOfReturn = totalGain / totalPaid;
 
