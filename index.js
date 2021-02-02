@@ -92,6 +92,7 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
       };
       saveSheetRow(newRow, paymentRowData);
 
+      oldBalance += premiumValue;
       lastRow = newRow;
       newRow = rows[lastRecordIndex - 2];
     }
