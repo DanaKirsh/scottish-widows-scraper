@@ -79,6 +79,7 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
     // Record if new premium payment was made:
     if (getDateFromStr(lastRow.date) < getDateFromStr(premiumDate)) {
       totalPaid += premiumValue;
+      const totalGain = getDouble(lastRow['total gain']);
       const intermediateBalance = roundTo2dp(oldBalance + premiumValue);
       const paymentRowData = {
         time,
@@ -87,8 +88,8 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
         'change': premiumValue,
         'payment': true,
         'total payments': roundTo2dp(totalPaid),
-        'total gain': getDouble(lastRow['total gain']),
-        'rate of return': parseFloat(lastRow['rate of return']) / 100,
+        'total gain': totalGain,
+        'rate of return': totalGain / totalPaid,
       };
       saveSheetRow(newRow, paymentRowData);
 
