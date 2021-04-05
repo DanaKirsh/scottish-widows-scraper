@@ -8,7 +8,7 @@ Scrapes the pension value and date from the Scottish Widows website, and records
 
 # Instructions
 1. Clone this repository
-2. Create a google sheet where the data will be stored, with the following headers: `time`(Time), `date`(Date), `value`(Currency), `change`(Currency), `payment`(Tick box), `total payments`(Currency), `total gain`(Currency), `rate of return`(Percent). [Exampld of the template I use](https://docs.google.com/spreadsheets/d/1xJKd9iZn-7UkdgAjSThVq-j_ZfiamMlNU0NAbIFkyTU/edit?usp=sharing) (with fake data)
+2. Create a google sheet where the data will be stored, with the following headers: `time`(Time), `date`(Date), `value`(Currency), `change`(Currency), `payment`(Tick box), `total payments`(Currency), `total gain`(Currency), `rate of return`(Percent). [Example of the template I use](https://docs.google.com/spreadsheets/d/1xJKd9iZn-7UkdgAjSThVq-j_ZfiamMlNU0NAbIFkyTU/edit?usp=sharing) (with fake data)
 3. Create a google cloud platform app with drive and sheets permissions
 4. Add to the project directory a `config.json` file with the following content(replacen hyphens with your credentials):
 ```
