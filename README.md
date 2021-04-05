@@ -65,4 +65,4 @@ Some other useful settings that I ticked include:
 - Stop task if it runs longer than _
 - Start the task only if the computer is on AC power (ticked off)
 
-Rows are added to the spreadsheet in reverse chronological order, meaning that the top filled row is the last recorded one. In order to maintain this order, you'll need to ensure there are always empty rows at the top of the spreadsheet. 
+**Rows are added to the spreadsheet in reverse chronological order, meaning that the top filled row is the last recorded one. In order to maintain this order, you'll need to ensure there are always empty rows at the top of the spreadsheet.** I add some new rows to the top every week when I check on my pension. Planning on automating that too at some point.
