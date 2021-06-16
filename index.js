@@ -71,7 +71,9 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
     console.log(`row ${date}: ${newBalance} already recorded. abort.`);
   } else {
     let newRow = rows[lastRecordIndex - 1];
-    const time = new Date().toISOString().substr(11, 8);
+    const today = new Date();
+    const time =
+     `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
     let oldBalance = getDouble(lastRow.value);
     let totalPaid = getDouble(lastRow['total payments']);
     newBalance = getDouble(newBalance);
