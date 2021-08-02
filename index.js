@@ -21,10 +21,10 @@ require('dotenv').config();
 
   if (!await page.$('h1[value*=\'SITE MAINTENANCE\']')) {
     // Log into Scottish Widows:
-    await fillInputField('emailAddress', process.env.PENSION_EMAIL);
+    await fillInputField('email', process.env.PENSION_EMAIL);
     await fillInputField('password', process.env.PENSION_PASSWORD);
     await Promise.all([
-      page.click('#button-login'),
+      page.click('#button-submit'),
       page.waitForNavigation(),
     ]);
 
