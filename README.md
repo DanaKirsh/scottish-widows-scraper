@@ -8,7 +8,7 @@ Scrapes the pension value and date from the Scottish Widows website, and records
 
 # Instructions
 1. Clone this repository
-2. Create a google sheet where the data will be stored, with the following headers: 'time', 'date', 'value', 'change', 'contribution values', 'contribution'
+2. Create a google sheet where the data will be stored, with the following headers: `time`(Time), `date`(Date), `value`(Currency), `change`(Currency), `payment`(Tick box), `total payments`(Currency), `total gain`(Currency), `rate of return`(Percent). [Example of the template I use](https://docs.google.com/spreadsheets/d/1xJKd9iZn-7UkdgAjSThVq-j_ZfiamMlNU0NAbIFkyTU/edit?usp=sharing) (with fake data)
 3. Create a google cloud platform app with drive and sheets permissions
 4. Add a `.env` file with the following fields to the project directory:
 ```
@@ -63,4 +63,4 @@ Some other useful settings that I ticked include:
 - Stop task if it runs longer than _
 - Start the task only if the computer is on AC power (ticked off)
 
-Rows are added to the spreadsheet in reverse chronological order, meaning that the top filled row is the last recorded one. In order to maintain this order, you'll need to ensure there are always empty rows at the top of the spreadsheet. 
+**Rows are added to the spreadsheet in reverse chronological order, meaning that the top filled row is the last recorded one. In order to maintain this order, you'll need to ensure there are always empty rows at the top of the spreadsheet.** I add some new rows to the top every week when I check on my pension. Planning on automating that too at some point.

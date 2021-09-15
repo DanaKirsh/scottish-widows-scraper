@@ -7,15 +7,17 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "prettier": "prettier ."
   },
   "dependencies": {
-    "dotenv": "^8.2.0",
-    "google-spreadsheet": "^3.0.13",
-    "puppeteer": "^5.2.1"
+    "dotenv": "^10.0.0",
+    "google-spreadsheet": "^3.1.15",
+    "prettier": "^2.3.2",
+    "puppeteer": "^10.2.0"
   },
   "devDependencies": {
-    "eslint": "^7.16.0",
+    "eslint": "^7.32.0",
     "eslint-config-google": "^0.14.0"
   }
 }

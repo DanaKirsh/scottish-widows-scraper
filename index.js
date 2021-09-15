@@ -21,10 +21,10 @@ require('dotenv').config();
 
   if (!await page.$('h1[value*=\'SITE MAINTENANCE\']')) {
     // Log into Scottish Widows:
-    await fillInputField('emailAddress', process.env.PENSION_EMAIL);
+    await fillInputField('email', process.env.PENSION_EMAIL);
     await fillInputField('password', process.env.PENSION_PASSWORD);
     await Promise.all([
-      page.click('#button-login'),
+      page.click('#button-submit'),
       page.waitForNavigation(),
     ]);
 
@@ -63,18 +63,25 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
   const lastRecordIndex = rows.findIndex((row) => row.date);
   let lastRow = rows[lastRecordIndex];
 
-  if (rows.length && lastRow.date === date && lastRow.value === newBalance) {
+  function isRowRecorded(row, date, balance) {
+    return row.date === date && row.value === balance;
+  }
+
+  if (rows.length && isRowRecorded(lastRow, date, newBalance)) {
     console.log(`row ${date}: ${newBalance} already recorded. abort.`);
   } else {
     let newRow = rows[lastRecordIndex - 1];
-    const time = new Date().toISOString().substr(11, 8);
-    const oldBalance = getDouble(lastRow.value);
+    const today = new Date();
+    const time =
+     `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+    let oldBalance = getDouble(lastRow.value);
     let totalPaid = getDouble(lastRow['total payments']);
     newBalance = getDouble(newBalance);
 
     // Record if new premium payment was made:
     if (getDateFromStr(lastRow.date) < getDateFromStr(premiumDate)) {
       totalPaid += premiumValue;
+      const totalGain = getDouble(lastRow['total gain']);
       const intermediateBalance = roundTo2dp(oldBalance + premiumValue);
       const paymentRowData = {
         time,
@@ -83,11 +90,12 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
         'change': premiumValue,
         'payment': true,
         'total payments': roundTo2dp(totalPaid),
-        'total gain': getDouble(lastRow['total gain']),
-        'rate of return': parseFloat(lastRow['rate of return']) / 100,
+        'total gain': totalGain,
+        'rate of return': totalGain / totalPaid,
       };
       saveSheetRow(newRow, paymentRowData);
 
+      oldBalance += premiumValue;
       lastRow = newRow;
       newRow = rows[lastRecordIndex - 2];
     }
