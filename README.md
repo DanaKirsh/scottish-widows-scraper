@@ -73,13 +73,19 @@ Until the `google-spreadsheet` library supports adding cells in the middle of a 
 function shiftRowsDown() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
-  var shiftRange = sheet.getRange("A2:H2");
+  var rowsToAdd = 0;
 
-  var testRange = sheet.getRange("A10:H10");
+  for (var i = 10; i > 1 && !sheet.getRange(i, 3).isBlank(); i = i - 1) {
+    rowsToAdd = rowsToAdd + 1;
+  }
 
-  for (var counter = 1; counter <= 5 && !testRange.isBlank(); counter = counter + 1) {
+  if (rowsToAdd > 0) {
+    var shiftRange = sheet.getRange(`A2:H${rowsToAdd + 1}`);
     shiftRange.insertCells(SpreadsheetApp.Dimension.ROWS);
-    Logger.log("shift number " + counter);
+    Logger.log(`${rowsToAdd} rows added`);
+  }
+  else {
+    Logger.log(`No rows added`);
   }
 }
 ```
@@ -89,6 +95,6 @@ function shiftRowsDown() {
     - Select event type: 'On change'
 
 4. Test that the trigger is working by making an edit to your spreadsheet and verifying that lines are added as a result.
-5. The function above includes a logging statement. You can verify the trigger is running, and how many lines are added each time by navigating to executions tab in the app scripts window and expanding each execution.
+5. The function above includes logging statements. You can verify the trigger is running, and how many lines are added each time by navigating to executions tab in the app scripts window and expanding each execution.
 
 This should make sure that the first few rows are always empty.
