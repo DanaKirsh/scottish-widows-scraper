@@ -89,12 +89,14 @@ function shiftRowsDown() {
   }
 }
 ```
+This should make sure that the first few rows are always empty.
+
+
 3. In the triggers section, click 'Add Trigger'.
     - Choose the function `shiftRowsDown` from the functions dropdown
     - Select event source: 'From Spreadsheet'
     - Select event type: 'On change'
 
 4. Test that the trigger is working by making an edit to your spreadsheet and verifying that lines are added as a result.
-5. The function above includes logging statements. You can verify the trigger is running, and how many lines are added each time by navigating to executions tab in the app scripts window and expanding each execution.
+5. The function above includes logging statements. You can verify the trigger is running, and how many lines are added each time by navigating to the executions tab in the app scripts window and expanding each execution.
 
-This should make sure that the first few rows are always empty.
