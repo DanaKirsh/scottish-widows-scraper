@@ -63,9 +63,9 @@ Some other useful settings that I ticked include:
 - Stop task if it runs longer than _
 - Start the task only if the computer is on AC power (ticked off)
 
-**Rows are added to the spreadsheet in reverse chronological order, meaning that the top filled row is the last recorded one. In order to maintain this order, you'll need to ensure there are always empty rows at the top of the spreadsheet.** I used to add some new rows to the top every week when I check on my pension.
+**Rows are added to the spreadsheet in reverse chronological order, meaning that the top filled row is the last recorded one. In order to maintain this order, you'll need to ensure there are always empty rows at the top of the spreadsheet.** I used to add some new rows to the top of the spreadsheet every week when I checked on my pension.
 
-Until the `google-spreadsheet` library supports adding cells in the middle of a spreadsheet natively, the solution at the moment is to create a trigger that invokes a google script function that adds rows to the spreadsheet whenever a change it made to it.
+Until the `google-spreadsheet` library supports adding cells in the middle of a spreadsheet natively, the solution I use now is to create a trigger that invokes a google script function that adds rows to the spreadsheet whenever a change it made to it.
 
 1. In your google sheet, go to Tools > Script Editor.
 2. Add this code (tweak as you like):
