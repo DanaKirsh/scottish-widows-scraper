@@ -19,7 +19,9 @@ require('dotenv').config();
     return await element.evaluate((element) => element.innerText);
   }
 
-  if (!await page.$('h1[value*=\'SITE MAINTENANCE\']')) {
+  const title = await page.$('h1').then(e => e.evaluate((t) => t.innerText));
+
+  if (!title.includes('MAINTENANCE')) {
     // Log into Scottish Widows:
     await fillInputField('email', process.env.PENSION_EMAIL);
     await fillInputField('password', process.env.PENSION_PASSWORD);
@@ -41,6 +43,9 @@ require('dotenv').config();
 
     // Record data in Google Sheet:
     addDataToSheet(date, newBalanceText, premiumValue, premiumDate);
+  }
+  else {
+    console.log('site is under maintenance. try again later.')
   }
 
   await browser.close();
