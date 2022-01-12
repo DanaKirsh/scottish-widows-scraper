@@ -67,9 +67,9 @@ Some other useful settings that I ticked include:
 
 Until the `google-spreadsheet` library supports adding cells in the middle of a spreadsheet natively, the solution I use now is to create a trigger that invokes a google script function that adds rows to the spreadsheet whenever a change it made to it.
 
-1. In your google sheet, go to Tools > Script Editor.
+1. In your google sheet, go to Extensions > Apps Script.
 2. Add this code (tweak as you like):
-```
+```javascript
 function shiftRowsDown() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
