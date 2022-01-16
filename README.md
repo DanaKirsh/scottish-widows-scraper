@@ -2,7 +2,7 @@
 Scrapes the pension value and date from the Scottish Widows website, and records it in a google sheet.
 
 ## Requirements:
-- [Scottish Widows](https://www.scottishwidows.co.uk/workplace/log-in/) workplace pension account
+- [Scottish Widows](https://personal.secure.scottishwidows.co.uk/login) workplace pension account
 - NodeJs
 - Google account
 
