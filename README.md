@@ -78,7 +78,7 @@ Using IFTTT it is possible to receive a push notification to your phone alerting
   - Then: send a notification from the IFTTT app
     - Pension changed by `value` yesterday
 5. Enable applet, and test by changing the value in cell D11 and clicking 'check now' in the applet in IFTTT - you should receive a notification like this:
-<img src="https://user-images.githubusercontent.com/24760490/149665710-0dc962e5-ec45-4f80-92c9-0d8ee8fe6832.png" width="300" height="200">
+<img src="https://user-images.githubusercontent.com/24760490/150650547-f5ab0ccc-9baf-47fa-93cc-3c32743b8e7b.png" width="300" height="200">
 
 ## Add rows to the top of the google sheet automatically
 
@@ -117,4 +117,3 @@ This should make sure that the first 10 rows are always empty.
 
 4. Test that the trigger is working by changing the value in cell C10 and verifying that a row is added as a result.
 5. The function above includes logging statements. You can verify the trigger is running, and how many rows are added each time by navigating to the executions tab in the app scripts window and expanding each execution.
-
