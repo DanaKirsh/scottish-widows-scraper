@@ -7,24 +7,24 @@ Scrapes the pension value and date from the Scottish Widows website, and records
 - Google account
 
 # Setting up
-1. Clone this repository
-2. Create a google sheet where the data will be stored, with the following headers: `time`(Time), `date`(Date), `value`(Currency), `change`(Currency), `payment`(Tick box), `total payments`(Currency), `total gain`(Currency), `rate of return`(Percent). [Example of the template I use](https://docs.google.com/spreadsheets/d/1xJKd9iZn-7UkdgAjSThVq-j_ZfiamMlNU0NAbIFkyTU/edit?usp=sharing) you can duplicate (with fake data)
-3. Create a google cloud platform app with drive and sheets permissions by following these guides in order:
+1. Clone this repository.
+2. Create a google sheet where the data will be stored, with the following headers: `time`(Time), `date`(Date), `value`(Currency), `change`(Currency), `payment`(Tick box), `total payments`(Currency), `total gain`(Currency), `rate of return`(Percent). [Example of the template I use](https://docs.google.com/spreadsheets/d/1xJKd9iZn-7UkdgAjSThVq-j_ZfiamMlNU0NAbIFkyTU/edit?usp=sharing) you can duplicate (with fake data).
+3. Obtain the google spreadsheet id, this should go in your `.env` file as `GOOGLE_SPREADSHEET_ID` (step 5).
+4. Create a google cloud platform app with drive and sheets permissions by following these guides in order:
 - [Create a google cloud project](https://developers.google.com/workspace/guides/create-project)
 - [Enable required APIs](https://developers.google.com/workspace/guides/enable-apis), searching for "Google Sheets API" and "Google Drive API"
 - Create [service account](https://developers.google.com/workspace/guides/create-credentials#service-account) and generate a key.
 - From the json key file you've downloaded, copy the `PRIVATE_KEY` and `CLIENT_EMAIL`, these should go in your `.env` file (see next step).
-
-4. Add a `.env` file with the following fields to the project directory:
+5. Add a `.env` file with the following fields to the project directory:
 ```
 PENSION_URL=https://personal.secure.scottishwidows.co.uk/
 PENSION_EMAIL=___
 PENSION_PASSWORD=___
 PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n <fill missing bit> \n-----END PRIVATE KEY-----\n"
 CLIENT_EMAIL=___
-GOOGLE_SHEET_ID=___
+GOOGLE_SPREADSHEET_ID=___
 ```
-5. Schedule to run the `index.js` script daily
+6. Schedule to run the `index.js` script daily.
 
 ## Schedule on Windows
 

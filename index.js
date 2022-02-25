@@ -53,7 +53,7 @@ require('dotenv').config();
 
 async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
   // Load Google Sheet and authenticate:
-  const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
+  const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID);
   await doc.useServiceAccountAuth({
     client_email: process.env.CLIENT_EMAIL,
     private_key: process.env.PRIVATE_KEY,
