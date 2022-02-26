@@ -99,7 +99,7 @@ Using IFTTT it is possible to receive a push notification to your phone alerting
 
 **Rows are added to the spreadsheet in reverse chronological order, meaning that the top filled row is the last recorded one. In order to maintain this order, you'll need to ensure there are always empty rows at the top of the spreadsheet.** I used to add some new rows to the top of the spreadsheet every week when I checked on my pension.
 
-Until the `google-spreadsheet` library supports adding cells in the middle of a spreadsheet natively, the solution I use now is to create a trigger that invokes a google script function that adds rows to the spreadsheet whenever a change it made to it.
+Until the `google-spreadsheet` library supports adding cells in the middle of a spreadsheet natively, the solution I use now is to create a trigger that invokes a google script function that adds rows to the spreadsheet whenever a change is made to it.
 
 1. In your google sheet, go to Extensions > Apps Script.
 2. Add this code (tweak as you like):
@@ -130,5 +130,5 @@ This should make sure that the first 10 rows are always empty.
     - Select event source: 'From Spreadsheet'
     - Select event type: 'On change'
 
-4. Test that the trigger is working by changing the value in cell C10 and verifying that a row is added as a result.
+4. Test that the trigger is working by changing the value in cell `C10` and verifying that a row is added as a result.
 5. The function above includes logging statements. You can verify the trigger is running, and how many rows are added each time by navigating to the executions tab in the app scripts window and expanding each execution.
