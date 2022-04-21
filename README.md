@@ -117,18 +117,20 @@ function shiftRowsDown() {
     var shiftRange = sheet.getRange(`A2:H${rowsToAdd + 1}`);
     shiftRange.insertCells(SpreadsheetApp.Dimension.ROWS);
     Logger.log(`${rowsToAdd} rows added`);
-  }
-  else {
+  } else {
     Logger.log(`No rows added`);
   }
 }
 ```
+
 This should make sure that the first 10 rows are always empty.
 
 3. In the triggers section, click 'Add Trigger'.
-    - Choose the function `shiftRowsDown` from the functions dropdown
-    - Select event source: 'From Spreadsheet'
-    - Select event type: 'On change'
+
+   - Choose the function `shiftRowsDown` from the functions dropdown
+   - Select event source: 'Time-driven'
+   - Select type of time based trigger: 'Day timer'
+   - Select time of day
 
 4. Test that the trigger is working by changing the value in cell `C10` and verifying that a row is added as a result.
 5. The function above includes logging statements. You can verify the trigger is running, and how many rows are added each time by navigating to the executions tab in the app scripts window and expanding each execution.
