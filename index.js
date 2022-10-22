@@ -39,11 +39,12 @@ require("dotenv").config();
 
     // Process values:
     const date = getDateStr(dateText);
-    const premiumValue = parseFloat(premiumText.match(/\d+(\.\d+)?/)[0]);
+    const newBalance = currency(newBalanceText);
+    const premiumValue = currency(premiumText);
     const premiumDate = getDateStr(premiumText.match(/\d+ [A-Z][a-z]+ \d{4}/));
 
     // Record data in Google Sheet:
-    addDataToSheet(date, newBalanceText, premiumValue, premiumDate);
+    addDataToSheet(date, newBalance, premiumValue, premiumDate);
   }
   else {
     console.log('site is under maintenance. try again later.')
@@ -68,48 +69,46 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
   // assuming not -1, based on my existing spreadsheet
   const lastRecordIndex = rows.findIndex((row) => row.date);
   let lastRow = rows[lastRecordIndex];
+  let oldBalance = currency(lastRow.value);
 
-  function isRowRecorded(row, date, balance) {
-    return row.date === date && row.value === balance;
+  function isRowRecorded(oldDate, date, balance) {
+    return oldDate === date && oldBalance.value === balance.value;
   }
 
-  if (rows.length && isRowRecorded(lastRow, date, newBalance)) {
+  if (rows.length && isRowRecorded(lastRow.date, date, newBalance)) {
     console.log(`row ${date}: ${newBalance} already recorded. abort.`);
   } else {
     let newRow = rows[lastRecordIndex - 1];
     const today = new Date();
     const time =
      `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
-    let oldBalance = getDouble(lastRow.value);
-    let totalPaid = getDouble(lastRow['total payments']);
-    newBalance = getDouble(newBalance);
+    let totalPaid = currency(lastRow['total payments']);
 
     // Record if new premium payment was made:
     if (getDateFromStr(lastRow.date) < getDateFromStr(premiumDate)) {
-      totalPaid += premiumValue;
-      const totalGain = getDouble(lastRow['total gain']);
-      const intermediateBalance = roundTo2dp(oldBalance + premiumValue);
+      totalPaid = totalPaid.add(premiumValue);
+      const totalGain = currency(lastRow['total gain']);
+      const intermediateBalance = oldBalance.add(premiumValue);
       const paymentRowData = {
         time,
         'date': premiumDate,
         'value': intermediateBalance,
         'change': premiumValue,
         'payment': true,
-        'total payments': roundTo2dp(totalPaid),
+        'total payments': totalPaid,
         'total gain': totalGain,
-        'rate of return': totalGain / totalPaid,
+        'rate of return': totalGain.value / totalPaid.value
       };
       saveSheetRow(newRow, paymentRowData);
 
-      oldBalance += premiumValue;
+      oldBalance = intermediateBalance;
       lastRow = newRow;
       newRow = rows[lastRecordIndex - 2];
     }
 
     // Record new balance:
-    const change = roundTo2dp(newBalance - oldBalance);
-    const totalGain = newBalance - totalPaid;
-    const rateOfReturn = totalGain / totalPaid;
+    const change = newBalance.subtract(oldBalance);
+    const totalGain = newBalance.subtract(totalPaid);
 
     const newRowData = {
       time,
@@ -118,7 +117,7 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
       change,
       'total payments': lastRow['total payments'],
       'total gain': totalGain,
-      'rate of return': rateOfReturn,
+      'rate of return': totalGain.value / totalPaid.value,
     };
 
     saveSheetRow(newRow, newRowData);
@@ -130,10 +129,6 @@ async function saveSheetRow(newRow, newRowData) {
   await newRow.save();
 }
 
-function getDouble(numberText) {
-  return currency(numberText).value;
-}
-
 function getDateFromStr(dateStr) {
   const parts = dateStr.split('/');
   return new Date(parseInt(parts[2], 10),
@@ -143,8 +138,4 @@ function getDateFromStr(dateStr) {
 
 function getDateStr(dateText) {
   return new Date(dateText).toLocaleDateString('en-GB');
-}
-
-function roundTo2dp(number) {
-  return Math.round((number + Number.EPSILON) * 100) / 100;
 }
