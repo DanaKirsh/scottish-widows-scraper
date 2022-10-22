@@ -1,7 +1,8 @@
-const puppeteer = require('puppeteer');
-const {GoogleSpreadsheet} = require('google-spreadsheet');
+const puppeteer = require("puppeteer");
+const { GoogleSpreadsheet } = require("google-spreadsheet");
+const currency = require("currency.js");
 
-require('dotenv').config();
+require("dotenv").config();
 
 (async () => {
   // Navigate to the Scottish Widows website:
@@ -129,8 +130,8 @@ async function saveSheetRow(newRow, newRowData) {
   await newRow.save();
 }
 
-function getDouble(newBalanceText) {
-  return parseFloat(newBalanceText.substring(1).replace(',', ''));
+function getDouble(numberText) {
+  return currency(numberText).value;
 }
 
 function getDateFromStr(dateStr) {
