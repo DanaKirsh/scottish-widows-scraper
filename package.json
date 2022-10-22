@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "currency.js": "^2.0.4",
-    "dotenv": "^16.0.0",
-    "google-spreadsheet": "^3.2.0",
+    "dotenv": "^16.0.3",
+    "google-spreadsheet": "^3.3.0",
     "prettier": "^2.6.2",
     "puppeteer": "^13.6.0"
   },
