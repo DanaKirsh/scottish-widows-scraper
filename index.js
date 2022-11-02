@@ -76,7 +76,8 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
   }
 
   if (rows.length && isRowRecorded(lastRow.date, date, newBalance)) {
-    console.log(`row ${date}: ${newBalance} already recorded. abort.`);
+    // Todo: uncomment when testing
+    // console.log(`row ${date}: ${newBalance} already recorded. abort.`);
   } else {
     let newRow = rows[lastRecordIndex - 1];
     const today = new Date();
