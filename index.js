@@ -20,6 +20,7 @@ require("dotenv").config();
     return await element.evaluate((element) => element.innerText);
   }
 
+  await page.waitForSelector('h1');
   const title = await page.$('h1').then(e => e.evaluate((t) => t.innerText));
 
   if (!title.includes('MAINTENANCE')) {
