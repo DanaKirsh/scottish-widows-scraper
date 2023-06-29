@@ -11,8 +11,7 @@ require("dotenv").config();
   await page.goto(process.env.PENSION_URL);
 
   async function fillInputField(fieldName, input) {
-    await page.click(`input[name=${fieldName}]`);
-    await page.keyboard.type(input);
+    await page.type(`input[name=${fieldName}]`, input);
   }
 
   async function getText(dataSelector) {
