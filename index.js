@@ -6,25 +6,30 @@ require("dotenv").config();
 
 (async () => {
   // Navigate to the Scottish Widows website:
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({headless: true});
   const page = await browser.newPage();
   await page.goto(process.env.PENSION_URL);
 
   async function fillInputField(fieldName, input) {
-    await page.click(`input[name=${fieldName}]`);
-    await page.keyboard.type(input);
+    await page.type(`input[name=${fieldName}]`, input);
   }
 
-  async function getText(dataSelector) {
-    const element = await page.$(`[data-selector=${dataSelector}]`);
+  async function getText(selector) {
+    const element = await page.$(selector);
     return await element.evaluate((element) => element.innerText);
   }
 
+  async function getTextFromDataSelector(dataSelector) {
+    return getText(`[data-selector=${dataSelector}]`);
+  }
+
   await page.waitForSelector('h1');
+  await page.waitForSelector('#lbganalyticsCookies');
   const title = await page.$('h1').then(e => e.evaluate((t) => t.innerText));
 
-  if (!title.includes('MAINTENANCE')) {
+  if (!title.includes('MAINTENANCE') && !title.includes("something went wrong")) {
     // Log into Scottish Widows:
+    await page.click("#accept");
     await fillInputField('email', process.env.PENSION_EMAIL);
     await fillInputField('password', process.env.PENSION_PASSWORD);
     await Promise.all([
@@ -33,28 +38,29 @@ require("dotenv").config();
     ]);
 
     // Scrape values:
-    await page.waitForSelector('[data-selector=manage-totalvalue]');
-    const dateText = await getText('manage-valuedate');
-    const newBalanceText = await getText('manage-totalvalue');
-    const premiumText = await getText('policy-card-last-premium-paid');
+    await page.waitForSelector('[data-selector=sub-policy-select-link]');
+    await page.click("[data-selector=sub-policy-select-link]");
+    await page.waitForSelector('[data-selector=policy-valuation-date]');
+    const dateText = await getTextFromDataSelector('policy-valuation-date');
+    const newBalanceText = await getTextFromDataSelector('policy-total');
+    const premiumText = await getText("[data-selector=payment-history-table] tbody tr");
 
     // Process values:
     const date = getDateStr(dateText);
     const newBalance = currency(newBalanceText);
-    const premiumValue = currency(premiumText);
-    const premiumDate = getDateStr(premiumText.match(/\d+ [A-Z][a-z]+ \d{4}/));
+    const premium = getPremium(premiumText)
 
     // Record data in Google Sheet:
-    addDataToSheet(date, newBalance, premiumValue, premiumDate);
+    addDataToSheet(date, newBalance, premium);
   }
   else {
-    console.log('site is under maintenance. try again later.')
+    console.log('site is unavailable. try again later.')
   }
 
   await browser.close();
 })();
 
-async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
+async function addDataToSheet(date, newBalance, premium) {
   // Load Google Sheet and authenticate:
   const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID);
   await doc.useServiceAccountAuth({
@@ -87,15 +93,15 @@ async function addDataToSheet(date, newBalance, premiumValue, premiumDate) {
     let totalPaid = currency(lastRow['total payments']);
 
     // Record if new premium payment was made:
-    if (getDateFromStr(lastRow.date) < getDateFromStr(premiumDate)) {
-      totalPaid = totalPaid.add(premiumValue);
+    if (getDateFromStr(lastRow.date) < getDateFromStr(premium.date)) {
+      totalPaid = totalPaid.add(premium.value);
       const totalGain = currency(lastRow['total gain']);
-      const intermediateBalance = oldBalance.add(premiumValue);
+      const intermediateBalance = oldBalance.add(premium.value);
       const paymentRowData = {
         time,
-        'date': premiumDate,
+        'date': premium.date,
         'value': intermediateBalance,
-        'change': premiumValue,
+        'change': premium.value,
         'payment': true,
         'total payments': totalPaid,
         'total gain': totalGain,
@@ -140,4 +146,12 @@ function getDateFromStr(dateStr) {
 
 function getDateStr(dateText) {
   return new Date(dateText).toLocaleDateString('en-GB');
+}
+
+function getPremium(text) {
+  const comps = text.split("\t");
+  const value = currency(comps[2]);
+  const date = getDateStr(comps[0]);
+
+  return {value, date};
 }
