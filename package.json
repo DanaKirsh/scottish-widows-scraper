@@ -1,6 +1,7 @@
 {
   "name": "pension-scraper",
   "version": "1.0.0",
+  "type": "module",
   "description": "Record pension value in a google sheet.",
   "main": "index.js",
   "keywords": [],
@@ -12,8 +13,9 @@
   },
   "dependencies": {
     "currency.js": "^2.0.4",
-    "dotenv": "^16.0.3",
-    "google-spreadsheet": "^3.3.0",
+    "dotenv": "^16.3.1",
+    "google-auth-library": "^8.9.0",
+    "google-spreadsheet": "^4.0.2",
     "prettier": "^2.6.2",
     "puppeteer": "^13.6.0"
   },
