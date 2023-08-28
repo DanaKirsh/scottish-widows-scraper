@@ -8,7 +8,7 @@ dotenv.config();
 
 (async () => {
   // Navigate to the Scottish Widows website:
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ headless: "new" });
   const page = await browser.newPage();
   await page.goto(process.env.PENSION_URL);
 
